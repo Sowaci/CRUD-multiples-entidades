@@ -1,7 +1,8 @@
 package com.sena.database_connection.controllers;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,105 +15,104 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sena.database_connection.dtos.UserDto;
+import com.sena.database_connection.entities.Role;
 import com.sena.database_connection.entities.User;
+import com.sena.database_connection.services.RoleService;
 import com.sena.database_connection.services.UserService;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/users")
 public class UserController {
 
-    // Servicio encargado de la lógica de usuarios
-    private UserService service;
+    private final UserService userService;
+    private final RoleService roleService;
 
-    // Constructor con inyección de dependencias
-    public UserController(UserService service) {
-        this.service = service;
+    public UserController(UserService userService, RoleService roleService) {
+        this.userService = userService;
+        this.roleService = roleService;
     }
 
-    // Endpoint para obtener todos los usuarios
-    @GetMapping()
-    public List<User> get() {
-        return this.service.obetenerTodos();
+    @GetMapping
+    public ResponseEntity<List<UserDto>> getAll() {
+        List<UserDto> users = userService.obtenerTodos().stream().map(this::mapToDto).collect(Collectors.toList());
+        return ResponseEntity.ok(users);
     }
 
-    // Endpoint para obtener un usuario por id
     @GetMapping("/{id}")
-    public ResponseEntity<User> getById(@PathVariable("id") Long id) {
-        Optional<User> user = this.service.porId(id);
-
-        if (user.isEmpty()) {
-            return ResponseEntity.status(404).body(null);
-        }
-
-        return ResponseEntity.status(200).body(user.get());
+    public ResponseEntity<UserDto> getById(@PathVariable Long id) {
+        return userService.porId(id).map(u -> ResponseEntity.ok(mapToDto(u)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Endpoint para crear un usuario
     @PostMapping
-    public User create(@RequestBody UserDto body) {
+    public ResponseEntity<UserDto> create(@RequestBody UserDto body) {
+        // validate roles exist
+        if (body.getRoleIds() != null) {
+            for (Long roleId : body.getRoleIds()) {
+                if (roleService.findById(roleId).isEmpty()) {
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+        }
 
-        // Se crea una nueva instancia de User con los datos recibidos
-        /*
-         * User user = new User(
-         * null,
-         * body.getName(),
-         * body.getEmail(),
-         * body.getAge(),
-         * body.getPhone());
-         */
-
-        User user = new User();
-
-        user.setName(body.getName());
-        user.setEmail(body.getEmail());
-        user.setAge(body.getAge());
-        user.setPhone(body.getPhone());
-
-        return this.service.crear(user);
+        User user = mapToEntity(body);
+        User created = userService.crear(user);
+        return ResponseEntity.created(URI.create("/api/users/" + created.getId())).body(mapToDto(created));
     }
 
-    // Endpoint para actualizar un usuario existente
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable("id") Long id, @RequestBody UserDto body) {
-
-        // Se crea una instancia de User con el id recibido
-        // y los nuevos datos enviados en el body
-        /*
-         * User user = new User(
-         * id,
-         * body.getName(),
-         * body.getEmail(),
-         * body.getAge(),
-         * body.getPhone());
-         */
-
-        User user = new User();
-
-        user.setName(body.getName());
-        user.setEmail(body.getEmail());
-        user.setAge(body.getAge());
-        user.setPhone(body.getPhone());
-
-        User userUptaded = this.service.actualizar(user);
-
-        if (userUptaded == null) {
-            return ResponseEntity.status(404).body(null);
+    public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody UserDto body) {
+        User user = mapToEntity(body);
+        User updated = userService.actualizar(user);
+        if (updated == null) {
+            return ResponseEntity.notFound().build();
         }
-
-        return ResponseEntity.status(200).body(userUptaded);
-
+        return ResponseEntity.ok(mapToDto(updated));
     }
 
-    // Endpoint para eliminar un usuario por id
     @DeleteMapping("/{id}")
-    public ResponseEntity<User> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        boolean deleted = userService.eliminar(id) != null;
+        if (!deleted) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
+    }
 
-        User userDeleted = this.service.eliminar(id);
+    private UserDto mapToDto(User user) {
+        UserDto dto = new UserDto();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setAge(user.getAge());
+        dto.setPhone(user.getPhone());
 
-        if (userDeleted == null) {
-            return ResponseEntity.status(404).body(null);
+        if (user.getProfile() != null) {
+            dto.setProfileId(user.getProfile().getId());
         }
 
-        return ResponseEntity.status(200).body(userDeleted);
+        if (user.getRoles() != null) {
+            dto.setRoleIds(user.getRoles().stream().map(Role::getId).collect(Collectors.toList()));
+        }
+
+        return dto;
+    }
+
+    private User mapToEntity(UserDto dto) {
+        User user = new User();
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setAge(dto.getAge());
+        user.setPhone(dto.getPhone());
+
+        if (dto.getRoleIds() != null) {
+            List<Role> roles = dto.getRoleIds().stream()
+                    .map(roleId -> roleService.findById(roleId).orElse(null))
+                    .filter(r -> r != null)
+                    .collect(Collectors.toList());
+            user.setRoles(roles);
+        }
+
+        return user;
     }
 }

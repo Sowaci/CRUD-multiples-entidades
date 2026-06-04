@@ -1,15 +1,21 @@
+version: '3.8'
+
 services:
-  db_136:
-    image: postgres:18-alpine
-    container_name: db_136
+  db_mysql:
+    image: mysql:8.0
+    container_name: db_mysql
     volumes:
-      - jpa_136:/var/lib/postgresql/18/docker
+      - mysql_data:/var/lib/mysql
     environment:
-      POSTGRES_USER: ejemplo_136
-      POSTGRES_PASSWORD: ejemplo_136
-      POSTGRES_DB: ejemplo_136
+      MYSQL_ROOT_PASSWORD: TU_CONTRASEÑA
+      MYSQL_DATABASE: Database
     ports:
-      - "5432:5432"
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  jpa_136:
+  mysql_data:

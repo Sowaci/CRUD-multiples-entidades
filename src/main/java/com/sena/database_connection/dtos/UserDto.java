@@ -1,9 +1,13 @@
 package com.sena.database_connection.dtos;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
 public class UserDto {
+
+    private Long id;
 
     private String name;
 
@@ -12,4 +16,8 @@ public class UserDto {
     private int age;
 
     private String phone;
+
+    private Long profileId;
+
+    private List<Long> roleIds;
 }

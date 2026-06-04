@@ -27,7 +27,7 @@ public class UserService {
     }
 
     // Método para obtener todos los usuarios registrados
-    public List<User> obetenerTodos() {
+    public List<User> obtenerTodos() {
 
         // Llama al método findAll de JPARepository para obtener todos los
         // registros de la tabla users.
@@ -66,7 +66,7 @@ public class UserService {
             return null;
         }
 
-        // Si existe, save actualizará automáticamente el registro
+        // Si existe, msave actualizará automáticamente el registro
         // en la base de datos.
         return this.repository.save(user);
     }

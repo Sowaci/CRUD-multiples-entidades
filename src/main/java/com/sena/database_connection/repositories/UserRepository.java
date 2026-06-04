@@ -7,4 +7,5 @@ import com.sena.database_connection.entities.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+	java.util.Optional<User> findByEmail(String email);
 }

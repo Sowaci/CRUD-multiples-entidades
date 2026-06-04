@@ -1,5 +1,7 @@
 package com.sena.database_connection.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,6 +28,7 @@ public class Post {
 
     private Integer likes;
 
+    @JsonBackReference(value = "user-posts")
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
