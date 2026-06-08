@@ -17,11 +17,11 @@ public class RoleService {
         this.repository = repository;
     }
 
-    public List<Role> findAll() {
+    public List<Role> obtenerTodos() {
         return repository.findAll();
     }
 
-    public Optional<Role> findById(Long id) {
+    public Optional<Role> porId(Long id) {
         return repository.findById(id);
     }
 
@@ -29,7 +29,7 @@ public class RoleService {
         return repository.save(role);
     }
 
-    public Role update(Long id, Role role) {
+    public Role actualizar(Long id, Role role) {
         Optional<Role> existing = repository.findById(id);
         if (existing.isEmpty()) {
             return null;
@@ -39,7 +39,7 @@ public class RoleService {
         return repository.save(r);
     }
 
-    public boolean delete(Long id) {
+    public boolean eliminar(Long id) {
         Optional<Role> existing = repository.findById(id);
         if (existing.isEmpty()) {
             return false;

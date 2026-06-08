@@ -17,19 +17,19 @@ public class ProfileService {
         this.repository = repository;
     }
 
-    public List<Profile> findAll() {
+    public List<Profile> obtenerTodos() {
         return repository.findAll();
     }
 
-    public Optional<Profile> findById(Long id) {
+    public Optional<Profile> porId(Long id) {
         return repository.findById(id);
     }
 
-    public Profile create(Profile profile) {
+    public Profile crear(Profile profile) {
         return repository.save(profile);
     }
 
-    public Profile update(Long id, Profile profile) {
+    public Profile actualizar(Long id, Profile profile) {
         Optional<Profile> existing = repository.findById(id);
         if (existing.isEmpty()) {
             return null;
@@ -43,7 +43,7 @@ public class ProfileService {
         return repository.save(p);
     }
 
-    public boolean delete(Long id) {
+    public boolean eliminar(Long id) {
         Optional<Profile> existing = repository.findById(id);
         if (existing.isEmpty()) {
             return false;

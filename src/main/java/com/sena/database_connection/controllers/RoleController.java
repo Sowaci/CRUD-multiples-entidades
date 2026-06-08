@@ -30,13 +30,13 @@ public class RoleController {
 
     @GetMapping
     public ResponseEntity<List<RoleDto>> getAll() {
-        List<RoleDto> roles = roleService.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
+        List<RoleDto> roles = roleService.obtenerTodos().stream().map(this::mapToDto).collect(Collectors.toList());
         return ResponseEntity.ok(roles);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<RoleDto> getById(@PathVariable Long id) {
-        return roleService.findById(id).map(r -> ResponseEntity.ok(mapToDto(r)))
+        return roleService.porId(id).map(r -> ResponseEntity.ok(mapToDto(r)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -52,7 +52,7 @@ public class RoleController {
     public ResponseEntity<RoleDto> update(@PathVariable Long id, @RequestBody RoleDto body) {
         Role role = new Role();
         role.setName(body.getName());
-        Role updated = roleService.update(id, role);
+        Role updated = roleService.actualizar(id, role);
         if (updated == null) {
             return ResponseEntity.notFound().build();
         }
@@ -61,7 +61,7 @@ public class RoleController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        boolean deleted = roleService.delete(id);
+        boolean deleted = roleService.eliminar(id);
         if (!deleted) {
             return ResponseEntity.notFound().build();
         }

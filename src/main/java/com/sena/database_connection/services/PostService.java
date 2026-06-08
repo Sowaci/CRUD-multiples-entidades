@@ -17,11 +17,11 @@ public class PostService {
         this.repository = repository;
     }
 
-    public List<Post> findAll() {
+    public List<Post> obtenerTodos() {
         return repository.findAll();
     }
 
-    public Optional<Post> findById(Long id) {
+    public Optional<Post> porId(Long id) {
         return repository.findById(id);
     }
 
@@ -29,11 +29,11 @@ public class PostService {
         return repository.findByUserId(userId);
     }
 
-    public Post create(Post post) {
+    public Post crear(Post post) {
         return repository.save(post);
     }
 
-    public Post update(Long id, Post post) {
+    public Post actualizar(Long id, Post post) {
         Optional<Post> existing = repository.findById(id);
         if (existing.isEmpty()) {
             return null;
@@ -48,7 +48,7 @@ public class PostService {
         return repository.save(p);
     }
 
-    public boolean delete(Long id) {
+    public boolean eliminar(Long id) {
         Optional<Post> existing = repository.findById(id);
         if (existing.isEmpty()) {
             return false;

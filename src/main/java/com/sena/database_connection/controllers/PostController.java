@@ -34,27 +34,27 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<List<PostDto>> getAll() {
-        List<PostDto> posts = postService.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
+        List<PostDto> posts = postService.obtenerTodos().stream().map(this::mapToDto).collect(Collectors.toList());
         return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> getById(@PathVariable Long id) {
-        return postService.findById(id).map(p -> ResponseEntity.ok(mapToDto(p)))
+        return postService.porId(id).map(p -> ResponseEntity.ok(mapToDto(p)))
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<PostDto> create(@RequestBody PostDto body) {
         Post post = mapToEntity(body);
-        Post created = postService.create(post);
+        Post created = postService.crear(post);
         return ResponseEntity.created(URI.create("/api/posts/" + created.getId())).body(mapToDto(created));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PostDto> update(@PathVariable Long id, @RequestBody PostDto body) {
         Post post = mapToEntity(body);
-        Post updated = postService.update(id, post);
+        Post updated = postService.actualizar(id, post);
         if (updated == null) {
             return ResponseEntity.notFound().build();
         }
@@ -63,7 +63,7 @@ public class PostController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        boolean deleted = postService.delete(id);
+        boolean deleted = postService.eliminar(id);
         if (!deleted) {
             return ResponseEntity.notFound().build();
         }

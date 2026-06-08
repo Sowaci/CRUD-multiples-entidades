@@ -34,27 +34,27 @@ public class ProfileController {
 
     @GetMapping
     public ResponseEntity<List<ProfileDto>> getAll() {
-        List<ProfileDto> profiles = profileService.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
+        List<ProfileDto> profiles = profileService.obtenerTodos().stream().map(this::mapToDto).collect(Collectors.toList());
         return ResponseEntity.ok(profiles);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProfileDto> getById(@PathVariable Long id) {
-        return profileService.findById(id).map(p -> ResponseEntity.ok(mapToDto(p)))
+        return profileService.porId(id).map(p -> ResponseEntity.ok(mapToDto(p)))
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<ProfileDto> create(@RequestBody ProfileDto body) {
         Profile profile = mapToEntity(body);
-        Profile created = profileService.create(profile);
+        Profile created = profileService.crear(profile);
         return ResponseEntity.created(URI.create("/api/profiles/" + created.getId())).body(mapToDto(created));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProfileDto> update(@PathVariable Long id, @RequestBody ProfileDto body) {
         Profile profile = mapToEntity(body);
-        Profile updated = profileService.update(id, profile);
+        Profile updated = profileService.actualizar(id, profile);
         if (updated == null) {
             return ResponseEntity.notFound().build();
         }
@@ -63,7 +63,7 @@ public class ProfileController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        boolean deleted = profileService.delete(id);
+        boolean deleted = profileService.eliminar(id);
         if (!deleted) {
             return ResponseEntity.notFound().build();
         }

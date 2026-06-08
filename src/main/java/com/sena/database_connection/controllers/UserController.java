@@ -49,7 +49,7 @@ public class UserController {
         // validate roles exist
         if (body.getRoleIds() != null) {
             for (Long roleId : body.getRoleIds()) {
-                if (roleService.findById(roleId).isEmpty()) {
+                if (roleService.porId(roleId).isEmpty()) {
                     return ResponseEntity.badRequest().build();
                 }
             }
@@ -107,7 +107,7 @@ public class UserController {
 
         if (dto.getRoleIds() != null) {
             List<Role> roles = dto.getRoleIds().stream()
-                    .map(roleId -> roleService.findById(roleId).orElse(null))
+                    .map(roleId -> roleService.porId(roleId).orElse(null))
                     .filter(r -> r != null)
                     .collect(Collectors.toList());
             user.setRoles(roles);
